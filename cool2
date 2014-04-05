@@ -10,13 +10,16 @@ canv.width  = canvasWidth
 var radius = canvasWidth/(2*columnSize)
 
 var counter1 = 25 //counter for first pattern
-var counter2 = 0
+var counter2 = 0 //counter for second pattern
+var counter3 = 25
 
 var check = 0
 
 var choose = 1
 
 var PAUSE = 0;
+var offset = 0;
+var realOffset = 0
 
 
 
@@ -97,14 +100,35 @@ updateBoard = function(){
         case 2:
             var columnList = pattern2()
             break;
+        case 3:
+            var columnList = pattern3()
     }
-    if (columnList[0] == 75){
-        if (Math.random() > 0.5){
+    
+    if (Math.random() > 0.9) {
+        if (offset == 0) {
+            if (Math.random() > .5){
+                offset+= 80
+            }
+            else {
+                offset -= 80
+            }
+        }
+        else if (offset < 0) {
+         offset += 80   
+        }
+        else {
+            offset -= 80
+        }
+        
+    }
+    
+    if (columnList[0] == 75+offset){ //randomize pattern
+        if (Math.random() < 0.5){
             choose = 1
     }
-            else{
+            else {
             choose = 2
-    }
+        }
     }
     
     for(var x = 0; x< columnSize; x++) {
@@ -114,7 +138,21 @@ updateBoard = function(){
                 if (x == columnSize-1) {
                    
                     background[x-1] = columnList
-                }
+                    if (offset != 0) {
+                        if (offset > 0){   
+                         background[x-1][1]+=1+realOffset
+                         realOffset++;
+                        offset--;
+                        }
+                        else {
+                            background[x-1][1]-= (1+realOffset)
+                         realOffset--;
+                        offset++;
+                            
+                        }
+                    }
+                            
+                }        
 	};
 
 }
@@ -161,6 +199,8 @@ pattern2 = function(){
     return column
     
 }
+
+
 
 drawPieces = function(){
    

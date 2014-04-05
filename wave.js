@@ -10,13 +10,19 @@ canv.width  = canvasWidth
 var radius = canvasWidth/(2*columnSize)
 
 var counter1 = 25 //counter for first pattern
-var counter2 = 0
+var counter2 = 0 //counter for second pattern
+var counter3 = 25
 
 var check = 0
 
 var choose = 1
 
+var score = 0;
+
 var PAUSE = 0;
+var offset = 0;
+var offsetSwitch = 1;
+var realOffset = 0
 
 
 
@@ -97,14 +103,33 @@ updateBoard = function(){
         case 2:
             var columnList = pattern2()
             break;
+        case 3:
+            var columnList = pattern3()
     }
-    if (columnList[0] == 75){
-        if (Math.random() > 0.5){
+    
+    if (offsetSwitch != 0) { //chance of changing offset switch to normal
+        if (Math.random() > 0.8){
+            offsetSwitch = 0
+        }
+    }
+    
+    if (Math.random() > 0.9) { //random to make it positive or negative
+        if (Math.random() > 0.5) {
+            
+        offsetSwitch = -1
+        }
+        else {
+            offsetSwitch = 1
+        }
+    }
+    
+    if (columnList[0] == 75+offset){ //randomize pattern
+        if (Math.random() < 0.5){
             choose = 1
     }
-            else{
+            else {
             choose = 2
-    }
+        }
     }
     
     for(var x = 0; x< columnSize; x++) {
@@ -114,7 +139,20 @@ updateBoard = function(){
                 if (x == columnSize-1) {
                    
                     background[x-1] = columnList
-                }
+                    if (offsetSwitch != 0){
+                        offset += offsetSwitch
+                        
+                    }
+                    else if (offset > 0){ //offset is 0
+                        offset--
+                        }
+                    else if (offset < 0){
+                        offset++
+                        }
+                    
+                   
+                    background[x-1][0] -= offset
+                    }
 	};
 
 }
@@ -162,14 +200,26 @@ pattern2 = function(){
     
 }
 
+
+
 drawPieces = function(){
    
     c.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    
 	if(check == 0){
-        drawRedCircle()
+        
+        score-= score;
+        context.fillStyle = "red"
+        scoreDisplay()
+        //drawRedCircle()
+        
     }
     else {
-        drawGreenCircle()
+        score++;
+        context.fillStyle = "black"
+        scoreDisplay()
+        //drawGreenCircle()
         
     }
     
@@ -197,6 +247,12 @@ run = function(){
     
     
 
+}
+
+
+function scoreDisplay() {
+    context.font = "bold 90px Arial";
+    context.fillText(Math.floor((score/5)), 40, 90);
 }
 
 
