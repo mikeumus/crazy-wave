@@ -1,0 +1,29 @@
+<html>
+<head>
+  <title>Game of Life</title>
+</head>
+<script src="http://code.jquery.com/jquery-latest.min.js"
+        type="text/javascript"></script>
+<body style="background-color:#000000;margin-top:20px">
+  <canvas id="canvas" style = "width:1000px; height:1000px; margin-right:auto;margin-left:auto;display:block;border:1px solid white;"></canvas>
+  <script type="text/javascript" src="gameoflife.js">
+    $()
+  </script>
+  <div id="buttons" style="display:block;margin-right:auto;margin-left:auto;align:center;width:111px">
+  <button type="button" id="pause">Pause</button><button type="button" id="reset">Reset</button>
+  <script type="text/javascript">
+      document.getElementById("pause").onclick=function(){
+        PAUSE = PAUSE * -2 + 1 +PAUSE 
+        console.log(PAUSE)
+      }
+      document.getElementById("reset").onclick=function(){
+        for (var y = 0; y < rowSize; y++) {
+          for(var x = 0; x < columnSize; x++){
+            pieces[y][x] = 0;
+            }
+        };
+      }
+  </script>
+  </div>
+</body>
+</html>
