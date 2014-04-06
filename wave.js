@@ -11,23 +11,31 @@ var radius = canvasWidth/(2*columnSize)
 
 var counter1 = 25 //counter for first pattern
 var counter2 = 0 //counter for second pattern
-var counter3 = 25
+var counter3 = 25 //counter for third pattern
+var switch3 = 0 //switch statements for third pattern
+var counter4 = 0
+var switch4 = 1
+
+
 
 var check = 0
 
 var choose = 1
 
 var score = 0;
+var highScore = 0;
 
-var PAUSE = 0;
+var PAUSE = false;
+
 var offset = 0;
 var offsetSwitch = 1;
-var realOffset = 0
 
+var mouseX = 0
+var mouseY = 0;
 
-
-console.log(canvasWidth)
-console.log(canvasHeight)
+// mouse follow circles
+var circleRadius = 5;
+ 
 
 
 
@@ -40,35 +48,32 @@ var background = new Array()
     };
 
 
-background[101][100] = 1;
-background[101][101] = 1;
-background[99][101] = 1;
-background[100][103] = 1;
-background[101][104] = 1;
-background[101][105] = 1;
-background[101][106] = 1;
+var whiteBackground = new Array()
+     for(var x = 0; x < columnSize; x++){
+    whiteBackground.push(new Array());
+        whiteBackground[x].push(-1)
+        whiteBackground[x].push(0)
+    };
 
 
-
-drawRedCircle = function(){
-   
+function drawCircle(mouseX, mouseY){
+	  // Clear the background
+	  // context.clearRect(0, 0, canv.width, canv.height);
+ 
+	  // Establish the circle path
+	  context.globalCompositeOperation="lighter";
 	  context.beginPath();
-      context.arc(150,50, radius*10, 0, 2 * Math.PI, false);
-      context.fillStyle = 'red';
-      context.fill();
-      context.lineWidth = 0;
-      context.stroke();
-}
+	  context.arc(mouseX, mouseY, circleRadius, 0 , 2 * Math.PI, false);
+ 
+	  // Fill the circle
+	  context.fillStyle = '00F0FF';
+	  context.fill();
+	
+	  context.globalCompositeOperation="source-over";
+	}
+ 
 
-drawGreenCircle = function(){
-   
-	  context.beginPath();
-      context.arc(150,50, radius*10, 0, 2 * Math.PI, false);
-      context.fillStyle = 'green';
-      context.fill();
-      context.lineWidth = 0;
-      context.stroke();
-}
+
 
 
 
@@ -76,8 +81,6 @@ drawBackground = function(x, y, length) {
     
    
      context.beginPath();
-      context.fillStyle = "#E6E6FA";
-    context.strokeStyle = "#E6E6FA";
       context.rect(x, y, 5, length);
       context.fill();
       context.lineWidth = 0;
@@ -92,9 +95,10 @@ updateBoard = function(){
            return 0
 	} 
     
+    
+  
 
     
-//bug check   // drawCircle(50*radius*2+radius,50*radius*2+radius)
     
     switch(choose){
         case 1:
@@ -105,11 +109,15 @@ updateBoard = function(){
             break;
         case 3:
             var columnList = pattern3()
+            break;
+        case 4:
+            var columnList = pattern4()
     }
     
     if (offsetSwitch != 0) { //chance of changing offset switch to normal
         if (Math.random() > 0.8){
             offsetSwitch = 0
+            
         }
     }
     
@@ -123,37 +131,76 @@ updateBoard = function(){
         }
     }
     
-    if (columnList[0] == 75+offset){ //randomize pattern
-        if (Math.random() < 0.5){
+    
+    
+   
+    if (columnList[0] == 75 && choose!=3){ //randomize pattern
+        if (Math.random() < 0.25){
             choose = 1
-    }
-            else {
+        }
+            else if (Math.random() < .333) {
             choose = 2
         }
+        else if (Math.random() > .3) {
+            choose = 3
+        }
+        else {
+            choose = 4
+    }
     }
     
+        if (counter3 > 29) { //move to next switch
+            if (Math.random() < 0.33){
+            if (switch3 == 2) {
+                switch3 =6
+                counter3 = 0
+            }
+            if (switch3 == 4){
+                switch3 = 7
+                counter3 = 0
+            }
+            }
+        }
+            
+        
+    
     for(var x = 0; x< columnSize; x++) {
+        
+                
+                    whiteBackground[x-1] = whiteBackground[x]
+        
 
 		        background[x-1] = background[x];
-                //background[y][x] = 0 //update this
+           
                 if (x == columnSize-1) {
+                    
+                    
+                    whiteBackground[x-1] = pattern4Helper()
                    
                     background[x-1] = columnList
                     if (offsetSwitch != 0){
                         offset += offsetSwitch
+                       
                         
                     }
                     else if (offset > 0){ //offset is 0
                         offset--
+                       
                         }
                     else if (offset < 0){
                         offset++
+                       
                         }
                     
-                   
-                    background[x-1][0] -= offset
+                
+                    
+                    
+                    whiteBackground[x-1][0] += offset
+                    background[x-1][0] += offset
                     }
 	};
+    
+    
 
 }
 
@@ -184,11 +231,11 @@ pattern2 = function(){
     counter2++
  
     if (counter2 < 50) {
-    column.push(75-counter2/2)
+    column.push(75-Math.floor(counter2/2))
     column.push(counter2*4+80)
         }
         else{
-        column.push(25+counter2/2)
+        column.push(25+Math.floor(counter2/2))
         column.push(480-counter2*4)
         
         if (counter2 > 99) {
@@ -200,12 +247,193 @@ pattern2 = function(){
     
 }
 
+pattern3 = function(){
+    var column = new Array()
+    
+    switch (switch3){
+            case 0: //middle
+                column.push(75)
+                column.push(80)
+                counter3++
+                if (counter3 > 30){
+                    switch3 = 1
+                    counter3 = 0
+                }
+                break;
+            
+            case 1: //half up
+                column.push(25)
+                column.push(330)
+                counter3++
+                if (counter3 > 30){
+                    switch3 = 2
+                    counter3 = 0;
+                }
+                break;
+            
+            case 2: //small top
+                column.push(25)
+                column.push(100)
+                counter3++
+                if (counter3> 30){
+                    switch3 = 3
+                    counter3 = 0
+                }
+                break;
+            
+            case 3: //long
+                column.push(25)
+                column.push(575)
+                counter3++
+                if(counter3 > 30){
+                    switch3 = 4
+                    counter3 = 0
+                }
+                break;
+            
+            case 4://small bottom
+                column.push(120)
+                column.push(100)
+                counter3++
+                if(counter3> 30){
+                    switch3 = 5
+                    counter3 = 0;
+                }
+                break;
+            case 5://long
+                column.push(25)
+                column.push(575)
+                counter3++
+                if(counter3 > 30){
+                    switch3 = 2
+                    counter3 = 0
+                }
+                break;
+            
+           
+            case 6: //even up, top
+                column.push(25)
+                column.push(330)
+                counter3++
+                if (counter3 > 30){
+                    choose = 2;
+                    switch3 = 0
+                     if (Math.random() < 0.5){
+                            choose = 1
+                    }
+                        else  {
+                        choose = 2
+                    }
+                    
+                }
+                break;
+            
+             case 7: //even up, bottom
+                column.push(75)
+                column.push(325)
+                counter3++
+                if (counter3 > 30){
+                    choose = 2;
+                    switch3 = 0
+                    counter3 =0
+                     if (Math.random() > 0.5){
+                         choose = 1
+                        }
+                    else {
+                        choose = 2
+                        }
+                    
+                    }
+                break;
+            
+            
+    
+}
+    return column;
+}
+
+pattern4 = function(){
+    var column = new Array()
+
+    counter4++
+ 
+    if (counter4 < 100) {
+    column.push(75-Math.floor(counter4/2))
+    column.push(counter4*4+80)
+        }
+    else if (switch4) {
+            column.push(25)
+            column.push(480)
+            if (counter4 > 300) {
+                if (Math.random() < .75) {
+                    switch4 = 0
+                }
+                counter4 = 99
+                
+            }
+            }
+        
+    else {    
+    column.push(-25+Math.floor(counter4/2))
+    column.push(880-(counter4)*4)
+        
+        if (counter4 > 199) { 
+            counter4 = 0 
+            switch4 = 1
+            
+        }
+        
+    }
+    return column
+    
+    
+}
+
+pattern4Helper = function() {
+    
+    var column = new Array()
+    if (counter4 < 50) {
+        column.push(-1)
+        column.push(0)
+    }
+    
+    else if (counter4 < 100) {
+    column.push(75-Math.floor(counter4/2)+30)
+    column.push(counter4*4-200)
+    }
+    else if (switch4) {
+     column.push(55)
+     column.push(200)
+    }
+    
+    else {
+        if (counter4 > 150) {
+             column.push(-1)
+             column.push(0)
+        }
+        column.push(5 +Math.floor(counter4/2))
+        column.push(600-counter4*4)
+            
+    }
+    
+  
+    return column
+}
+
+    
+
 
 
 drawPieces = function(){
+    
+    if (PAUSE) {
+        return 0
+        
+    }
    
     c.clearRect(0, 0, canvasWidth, canvasHeight);
-
+    
+    highScoreDisplay()
     
 	if(check == 0){
         
@@ -222,33 +450,72 @@ drawPieces = function(){
         //drawGreenCircle()
         
     }
+    if (score > highScore){
+        highScore = score
+    }
+    context.fillStyle = "black"
+    
+  
+    
     
 
     
     for(var x = 0; x<rowSize; x++){
+        context.fillStyle = "#E6E6FA";
+        context.strokeStyle = "#E6E6FA";
+        drawBackground(x*radius*2+radius, background[x][0]*radius*2+radius, background[x][1])   
+        context.fillStyle = "#FFFFFF";
+        context.strokeStyle = "#FFFFFF";
+        drawBackground(x*radius*2+radius, whiteBackground[x][0]*radius*2+radius, whiteBackground[x][1])
+        }
         
-                drawBackground(x*radius*2+radius, background[x][0]*radius*2+radius, background[x][1])   
         
 		
             
         
-	}
+	
 }
 
 
 run = function(){
-   // c.translate(-10,0)
-    
-    
   
+    
+    
+    var pixelData = canvas.getContext('2d').getImageData(mouseX, mouseY, 1, 1).data;
+   
+    
+    var mouseR = pixelData[0]
+    var mouseG = pixelData[1]
+    var mouseB = pixelData[2]
+ 
+    
+    if(mouseR!=230 && mouseG!=230 && mouseB !=250){
+        check=0
+   
+}
+    else{
+        check =1
+    }
+    
+     //drawCircle(mouseX, mouseY);
+    
 	drawPieces()
 	updateBoard()
+    context.fillStyle = "black"
+    highScoreDisplay()
+    
+     drawCircle(mouseX, mouseY);
    // c.translate(0,0)
     
     
 
 }
 
+function highScoreDisplay()
+{
+    context.font = "bold 90px Arial";
+    context.fillText(Math.floor((highScore/5)), 850, 90);
+}
 
 function scoreDisplay() {
     context.font = "bold 90px Arial";
@@ -261,12 +528,21 @@ main = function(){
 }
 
 
+window.onkeypress = function(evt) {
+    console.log('pressed')
+    
+    if (evt.keyCode == 32) {
+        console.log('spacebar')
+      PAUSE = !PAUSE;
+    }
+}
+
 canvas.onmousemove = function(e){
     
     
     
     
-	var mouseX, mouseY;
+
 
     if(e.offsetX) {
         mouseX = e.offsetX;
@@ -277,24 +553,7 @@ canvas.onmousemove = function(e){
         mouseY = e.layerY;
     }
     
-    var pixelData = canvas.getContext('2d').getImageData(mouseX, mouseY, 1, 1).data;
-   
     
-    var mouseR = pixelData[0]
-    var mouseG = pixelData[1]
-    var mouseB = pixelData[2]
-   //var a= pixelData[3]
-    //console.log("This is red val: ", mouseR)
-    //console.log("This is green val: ", mouseG)
-    
-    if(mouseR!=230 && mouseG!=230 && mouseB !=250){
-        check=0
-    //    console.log("You're outsisde the line conrad....")
-        
-}
-    else{
-        check =1
-    }
 }
 
 window.onload = main
